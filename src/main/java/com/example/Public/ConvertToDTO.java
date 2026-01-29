@@ -20,7 +20,7 @@ public class ConvertToDTO {
 
 	public DoctorResponseDTO convertToDoctorResponseDTO(Doctor doctor) {
 		return new DoctorResponseDTO(doctor.getDoctorId(), doctor.getDoctorName(), doctor.getSpecialization(),
-				doctor.getFee(), doctor.getProfilePhotoUrl(), doctor.getCreatedAt(), doctor.getEmail(),
+				doctor.getFee(), doctor.getProfilePhotoUrl(), doctor.getCreatedAt(),
 				convertTDepartmentResponseDTO(doctor.getDepartment()));
 	}
 

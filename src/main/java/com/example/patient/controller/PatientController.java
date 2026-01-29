@@ -21,6 +21,8 @@ import com.example.patient.DTO.PatientResponseDTO;
 import com.example.patient.entity.Patient;
 import com.example.patient.service.PatientService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/patient")
 public class PatientController {
@@ -29,7 +31,7 @@ public class PatientController {
 	private PatientService patientService;
 
 	@PostMapping("/register-patient")
-	public ResponseEntity<?> registerPatient(@RequestBody PatientRequestDTO patientRequestDTO) {
+	public ResponseEntity<?> registerPatient(@Valid @RequestBody PatientRequestDTO patientRequestDTO) {
 		try {
 		String message=	patientService.savePatient(patientRequestDTO);
 			return ResponseEntity.ok(Map.of("message",message));
@@ -70,7 +72,7 @@ public class PatientController {
 	return ResponseEntity.ok(Map.of("message",message));
 	}
 	@PutMapping("/update-patient/{id}")
-	public ResponseEntity<?> updatePatient(@PathVariable int id ,@RequestBody PatientRequestDTO patientRequestDTO){
+	public ResponseEntity<?> updatePatient(@PathVariable int id ,@Valid @RequestBody PatientRequestDTO patientRequestDTO){
 		String message = patientService.updatePatient(id, patientRequestDTO);
 		return ResponseEntity.ok(Map.of("message",message));
 	}

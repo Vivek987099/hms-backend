@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,8 @@ import com.example.doctor.DTO.DoctorScheduleRequestDTO;
 import com.example.doctor.Enum.DoctorDayEnum.DoctorDay;
 import com.example.doctor.serviceImple.DoctorScheduleServiceImple;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/doctor-schedule")
 public class DoctorScheduleController {
@@ -25,9 +28,9 @@ public class DoctorScheduleController {
 	@Autowired
 	private DoctorScheduleServiceImple doctorScheduleServiceImple;
 
-
+	
 	@PostMapping("/make-schedule")
-	public ResponseEntity<?> createSchedule(@RequestBody DoctorScheduleRequestDTO doctorScheduleRequestDTO) {
+	public ResponseEntity<?> createSchedule(@Valid @RequestBody DoctorScheduleRequestDTO doctorScheduleRequestDTO) {
 		String message = doctorScheduleServiceImple.makeSchedule(doctorScheduleRequestDTO);
 		return ResponseEntity.ok(Map.of("message", message));
 	}

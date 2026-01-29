@@ -25,7 +25,7 @@ public class FileUpload {
 		createDirIfNotExist(uploadingDirectoryPath);
 
 //     GET ORIGINAL FILE NAME 
-		String fileName = System.currentTimeMillis()+"_"+file.getOriginalFilename();
+		String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 
 //		CREATE FULL PATH WITH FILE NAME 
 		Path filePath = uploadingDirectoryPath.resolve(fileName);
@@ -43,6 +43,7 @@ public class FileUpload {
 
 		Path uploadingPath = Paths.get(UPLOAD_DIR);
 		Path newFilePath = uploadingPath.resolve(newFileName);
+		
 
 		Files.copy(file.getInputStream(), newFilePath, StandardCopyOption.REPLACE_EXISTING);
 

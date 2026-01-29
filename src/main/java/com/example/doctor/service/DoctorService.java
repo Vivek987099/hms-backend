@@ -11,7 +11,7 @@ import com.example.doctor.DTO.DoctorResponseDTO;
 
 public interface DoctorService {
 	
-	public String saveDoctor(DoctorRequestDTO doctorRequestDTO,MultipartFile file) throws IOException;
+	public String saveDoctor(int id,DoctorRequestDTO doctorRequestDTO,MultipartFile file) throws IOException;
 	public Page<DoctorResponseDTO> getAllDoctors(int pageSize,int pageNo);
 	public long totalDoctors();
 	public String deleteDoctorWithId(int id);
@@ -21,6 +21,8 @@ public interface DoctorService {
 	public String updateDoctor(int id,DoctorRequestDTO doctorRequestDTO);
 	
 	public List<DoctorResponseDTO> getDoctorByDepartment(int departmentId);
+	
+	public DoctorResponseDTO doctorProfile();
 	
 	
 

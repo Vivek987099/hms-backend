@@ -23,6 +23,8 @@ import com.example.doctor.DTO.DoctorRequestDTO;
 import com.example.doctor.DTO.DoctorResponseDTO;
 import com.example.doctor.service.DoctorService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/doctor")
 @CrossOrigin(origins = "http://localhost:5173")
@@ -31,13 +33,14 @@ public class DoctorController {
 	@Autowired
 	private DoctorService doctorService;
 
-	@PostMapping("/create-doctor")
-	public ResponseEntity<?> saveDoctor(@RequestPart("doctor") DoctorRequestDTO doctorRequestDTO, @RequestPart("file") MultipartFile file)
+	@PostMapping("/create-doctor/{userId}")
+	public ResponseEntity<?> saveDoctor(@PathVariable(name = "userId") int userId,@Valid @RequestPart("doctor") DoctorRequestDTO doctorRequestDTO, @RequestPart("file") MultipartFile file)
 			throws IOException {
-		 String message= doctorService.saveDoctor(doctorRequestDTO, file);
+		 String message= doctorService.saveDoctor(userId,doctorRequestDTO, file);
 		return ResponseEntity.ok(Map.of("message",message));
 	}
-
+	
+	
 	@GetMapping("/all-doctors")
 	public ResponseEntity<?> getDoctors(@RequestParam(name = "pageSize", defaultValue = "5") int pageSize,
 			@RequestParam(name = "pageNo", defaultValue = "0") int pageNo) {
@@ -69,6 +72,10 @@ public class DoctorController {
 	@GetMapping("/doctor-by-department/{id}")
 	public ResponseEntity<List<DoctorResponseDTO>> doctorByDepartment(@PathVariable int id){
 		return ResponseEntity.ok(doctorService.getDoctorByDepartment(id));
+	}
+	@GetMapping("/doctor/profile")
+	public ResponseEntity<?> getDoctorProfile(){
+		return ResponseEntity.ok(this.doctorService.doctorProfile());
 	}
 
 }

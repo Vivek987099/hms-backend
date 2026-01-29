@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.example.Public.ConvertToDTO;
@@ -24,6 +26,8 @@ import com.example.doctor.entity.Doctor;
 import com.example.doctor.repository.DoctorRepository;
 import com.example.patient.entity.Patient;
 import com.example.patient.repository.PatientRepository;
+import com.example.user.DTO.CustomUserDetails;
+import com.example.user.entity.User;
 
 @Service
 public class AppointmentServiceImple implements AppointmentService {
@@ -99,6 +103,18 @@ public class AppointmentServiceImple implements AppointmentService {
 		appointments.setUpdatedAt(LocalDate.now());
 		appointmentRepository.save(appointments);
 		return "Status Update";
+	}
+
+	@Override
+	public List<AppointmentResponseDTO> appointmentByDoctor() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+		User user = customUserDetails.getUser();
+		Doctor doctor = doctorRepository.findByUser(user).orElseThrow(() -> new RuntimeException("doctor not found"));
+		List<Appointments> aptList = this.appointmentRepository.findByDoctor(doctor);
+		List<AppointmentResponseDTO> responseDTOs = aptList.stream()
+				.map(apt -> convertToDTO.convertToAppointmentResponseDTO(apt)).toList();
+		return responseDTOs;
 	}
 
 }

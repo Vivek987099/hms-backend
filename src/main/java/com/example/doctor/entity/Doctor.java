@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.example.appointment.entity.Appointments;
 import com.example.department.entity.Department;
+import com.example.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -36,8 +37,9 @@ public class Doctor {
 	private String profilePhotoUrl;
 	@Column
 	private LocalDate createdAt;
-	@Column
-	private String email;
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	User user;
 
 //	RELATION FOR APPOINTMENTS
 
@@ -58,8 +60,10 @@ public class Doctor {
 		// TODO Auto-generated constructor stub
 	}
 
+
+
 	public Doctor(int doctorId, String doctorName, String specialization, float fee, String profilePhotoUrl,
-			LocalDate createdAt, String email, List<Appointments> appointments, List<DoctorSchedule> schedules,
+			LocalDate createdAt, User user, List<Appointments> appointments, List<DoctorSchedule> schedules,
 			Department department) {
 		super();
 		this.doctorId = doctorId;
@@ -68,11 +72,13 @@ public class Doctor {
 		this.fee = fee;
 		this.profilePhotoUrl = profilePhotoUrl;
 		this.createdAt = createdAt;
-		this.email = email;
+		this.user = user;
 		this.appointments = appointments;
 		this.schedules = schedules;
 		this.department = department;
 	}
+
+
 
 	public int getDoctorId() {
 		return doctorId;
@@ -144,14 +150,20 @@ public class Doctor {
 
 	public void setDepartment(Department department) {
 		this.department = department;
+
 	}
 
-	public String getEmail() {
-		return email;
+
+
+	public User getUser() {
+		return user;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
 
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	
 }

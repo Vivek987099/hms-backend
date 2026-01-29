@@ -13,16 +13,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
+import com.example.Public.ConvertToDTO;
 import com.example.user.DTO.CustomUserDetails;
+import com.example.user.DTO.UserResponseDTO;
 import com.example.user.entity.User;
 
 @Service
 public class AuthServiceImple implements AuthService{
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
 	@Autowired
 	private JwtUtils jwtUtils;
+	@Autowired
+	private ConvertToDTO convertToDTO;
+
+    
 	@Override
 	public ResponseEntity<?> login(LoginRequest loginRequest) {
 		 Authentication authentication=  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -47,7 +53,17 @@ public class AuthServiceImple implements AuthService{
 		      
 		
 		// TODO Auto-generated method stub
-		return ResponseEntity.ok(Map.of("LoggedIn",true,"username",user.getUsername(),"role",user.getRole()));
+		return ResponseEntity.ok(Map.of("LoggedIn",true));
+	}
+	
+	
+	@Override
+	public UserResponseDTO getProfile() {
+		Authentication auth= SecurityContextHolder.getContext().getAuthentication();
+		  CustomUserDetails customUserDetails=(CustomUserDetails) auth.getPrincipal();
+		  User loggedInUser = customUserDetails.getUser();
+		  
+		return convertToDTO.convertToUserResponseDTO(loggedInUser);
 	}
 
 }

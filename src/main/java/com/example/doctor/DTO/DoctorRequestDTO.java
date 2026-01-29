@@ -1,12 +1,21 @@
 package com.example.doctor.DTO;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 public class DoctorRequestDTO {
+	@NotBlank(message = "Name required")
+	@Pattern(regexp = "^[A-Za-z ]+$",message = "Digits,Special symbols are not allowed")
+	@Size(min = 3,max = 30,message = "Name can be 3 to 30 chars")
 	private String doctorName;
+	@NotBlank(message = "This field is mandatory")
 	private String specialization;
+	@NotNull(message = "This field is mandatory")
 	private Float fee;
 	private String profilePhotoUrl;
-	private String email;
+	@NotNull(message = "Select Department")
 	private Integer departmentId;
 
 	public DoctorRequestDTO() {
@@ -16,14 +25,13 @@ public class DoctorRequestDTO {
 
 	
 
-	public DoctorRequestDTO(String doctorName, String specialization, Float fee, String profilePhotoUrl, String email,
+	public DoctorRequestDTO(String doctorName, String specialization, Float fee, String profilePhotoUrl,
 			Integer departmentId) {
 		super();
 		this.doctorName = doctorName;
 		this.specialization = specialization;
 		this.fee = fee;
 		this.profilePhotoUrl = profilePhotoUrl;
-		this.email = email;
 		this.departmentId = departmentId;
 	}
 
@@ -60,16 +68,6 @@ public class DoctorRequestDTO {
 	public void setProfilePhotoUrl(String profilePhotoUrl) {
 		this.profilePhotoUrl = profilePhotoUrl;
 	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-
 
 	public Integer getDepartmentId() {
 		return departmentId;

@@ -28,20 +28,17 @@ public class UserController {
 	public ResponseEntity<?> creatUser(@RequestBody User user) {
 
 		String message = userServiceImple.createNewUser(user);
-		return ResponseEntity.ok(Map.of("message", message));
+		return ResponseEntity.ok(Map.of("User", message));
 	}
 	@PostMapping("/verify-otp")
 	public ResponseEntity<?> verifyOtp(@RequestBody OTPVerificationRequest otpVerificationRequest){
 		
 		
-		String message =  userServiceImple.otpVerification(otpVerificationRequest);
-		return ResponseEntity.ok(Map.of("message",message));
+		int useId =  userServiceImple.otpVerification(otpVerificationRequest);
+		return ResponseEntity.ok(Map.of("userId",useId));
 	}
 
-	@GetMapping("/profile")
-	public ResponseEntity<?> getProfile() {
-		return ResponseEntity.ok(userServiceImple.getUserProfile());
-	}
+	
 
 	@GetMapping("/total-users")
 	public ResponseEntity<?> getTotalUser() {
@@ -57,5 +54,11 @@ public class UserController {
 	public ResponseEntity<?> deleteUserWithId(@PathVariable int id){
 		String message=  userServiceImple.deleteUser(id);
 		return ResponseEntity.ok(Map.of("message",message));
+	}
+	
+	@GetMapping("/users/{role}")
+	public ResponseEntity<?> usersByRole(@PathVariable String role){
+		return ResponseEntity.ok(this.userServiceImple.getUserByRole(role));
+		
 	}
 }

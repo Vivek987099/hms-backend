@@ -3,20 +3,25 @@ package com.example.appointment.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import jakarta.validation.constraints.NotNull;
+
 
 public class AppointmentRequestDTO {
-
+	@NotNull(message = "This field is required")
 	private LocalDate date;
+	@NotNull(message = "This field is required")
 	private LocalTime time;
-	private int doctorId;
-	private int patientId;
+	@NotNull(message = "This field is required")
+	private Integer doctorId;
+	@NotNull(message = "This field is required")
+	private Integer patientId;
 
 	public AppointmentRequestDTO() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public AppointmentRequestDTO(LocalDate date, LocalTime time, int doctorId, int patientId) {
+	public AppointmentRequestDTO(LocalDate date, LocalTime time, Integer doctorId, Integer patientId) {
 		super();
 		this.date = date;
 		this.time = time;
@@ -40,19 +45,19 @@ public class AppointmentRequestDTO {
 		this.time = time;
 	}
 
-	public int getDoctorId() {
+	public Integer getDoctorId() {
 		return doctorId;
 	}
 
-	public void setDoctorId(int doctorId) {
+	public void setDoctorId(Integer doctorId) {
 		this.doctorId = doctorId;
 	}
 
-	public int getPatientId() {
+	public Integer getPatientId() {
 		return patientId;
 	}
 
-	public void setPatientId(int patientId) {
+	public void setPatientId(Integer patientId) {
 		this.patientId = patientId;
 	}
 

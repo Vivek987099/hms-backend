@@ -20,6 +20,8 @@ public interface AppointmentService {
 	
 	public String updateAppointment(int id ,AppointmentUpadateRequestDTO appointmentUpadateRequestDTO);
 	
+	public List<AppointmentResponseDTO> appointmentByDoctor();
+	
 	
 
 }

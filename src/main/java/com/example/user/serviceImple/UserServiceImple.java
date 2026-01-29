@@ -2,6 +2,7 @@ package com.example.user.serviceImple;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ import com.example.Public.ConvertToDTO;
 import com.example.mail.service.MailService;
 import com.example.tempUser.entity.TempUser;
 import com.example.tempUser.repository.TempUserRepository;
-import com.example.user.DTO.CustomUserDetails;
 import com.example.user.DTO.OTPVerificationRequest;
 import com.example.user.DTO.UserResponseDTO;
 import com.example.user.entity.User;
@@ -48,7 +46,6 @@ public class UserServiceImple implements UserService {
 
 	@Override
 	public String createNewUser(User user) {
-//		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		String generatedOtp = String.valueOf(100000 + new Random().nextInt(900000));
 		TempUser tempUser = new TempUser();
 		tempUser.setUsername(user.getUsername());
@@ -58,24 +55,15 @@ public class UserServiceImple implements UserService {
 		tempUser.setOtp(generatedOtp);
 		boolean status = mailService.sendMail("verification", user.getUsername(),
 				"Your One Time Password (OTP)  is " + generatedOtp + " valid for only 10 minutes.");
-
 		if (status) {
 			tempUserRepository.save(tempUser);
 			return "We have sent an OTP to your email";
 		} else {
 			return "Try again to sent OTP";
 		}
-
 	}
 
-	@Override
-	public User getUserProfile() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-		User user = customUserDetails.getUser();
-		return user;
-	}
-
+	
 	@Override
 	public long totalUser() {
 		return userRepository.count();
@@ -84,7 +72,7 @@ public class UserServiceImple implements UserService {
 
 	@Transactional
 	@Override
-	public String otpVerification(OTPVerificationRequest otpVerificationRequest) {
+	public int otpVerification(OTPVerificationRequest otpVerificationRequest) {
 		String username = otpVerificationRequest.getUsername();
 		String otp = otpVerificationRequest.getOtp();
 		TempUser tempUser = tempUserRepository.findByUsername(username)
@@ -92,20 +80,22 @@ public class UserServiceImple implements UserService {
 		if (!tempUser.getOtp().equals(otp)) {
 			throw new RuntimeException("OTP Invalid");
 		}
+		if(tempUser.getExpiredAt().isBefore(LocalDateTime.now())) {
+			throw new RuntimeException("OTP expired");
+		}
 		User user = new User();
-
 		user.setUsername(tempUser.getUsername());
 		user.setPassword(passwordEncoder.encode(tempUser.getPassword()));
 		user.setCreatedAt(LocalDate.now());
 		user.setRole(tempUser.getRole());
 		user.setStatus(true);
-		userRepository.save(user);
+		User savedUser = userRepository.save(user);
 
 		mailService.sendMail("Information", otpVerificationRequest.getUsername(),
 				"Hey! you are now admin of Hospital Management System.");
 		tempUserRepository.deleteByUsername(otpVerificationRequest.getUsername());
 
-		return "Registered Successfuly";
+		return savedUser.getId();
 	}
 
 	@Override
@@ -121,5 +111,13 @@ public class UserServiceImple implements UserService {
 			 userRepository.delete(user);
 			 
 			 return "User delete successfully";
+	}
+	
+	
+	@Override
+	public List<UserResponseDTO> getUserByRole(String role) {
+		List<User> userList= this.userRepository.findByRole(role);
+		 List<UserResponseDTO> dtoList =	userList.stream().map(user -> convertToDTO.convertToUserResponseDTO(user)).toList();
+		return dtoList;
 	}
 }

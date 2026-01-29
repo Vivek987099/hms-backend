@@ -4,11 +4,16 @@ import java.time.LocalTime;
 
 import com.example.doctor.Enum.DoctorDayEnum.DoctorDay;
 
-public class DoctorScheduleRequestDTO {
+import jakarta.validation.constraints.NotNull;
 
+public class DoctorScheduleRequestDTO {
+	@NotNull(message = "This field is required")
 	private DoctorDay day;
+	@NotNull(message = "This field is required")
 	private LocalTime startTime;
+	@NotNull(message = "This field is required")
 	private LocalTime endTime;
+	@NotNull(message = "This field is required")
 	private Integer doctorId;
 
 	public DoctorScheduleRequestDTO() {

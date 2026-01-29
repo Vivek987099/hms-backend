@@ -35,22 +35,20 @@ public class PatientServiceImple implements PatientService {
 
 	@Override
 	public String savePatient(PatientRequestDTO patientRequestDTO) {
-
 		Patient patient = new Patient();
 		patient.setPatientName(patientRequestDTO.getPatientName());
 		patient.setAge(patientRequestDTO.getAge());
-		patient.setAdderes(patientRequestDTO.getAdderes());
-
+		if (patientRequestDTO.getAdderes().trim().isEmpty()) {
+			patient.setAdderes("Unavailable");
+		} else {
+			patient.setAdderes(patientRequestDTO.getAdderes());
+		}
 		patient.setGender(patientRequestDTO.getGender());
 		patient.setPhone(patientRequestDTO.getPhone());
 		patient.setCreateAt(LocalDate.now());
 		patient.setDeleted(false);
-
-		 patientRepository.save(patient);
-		 
-		 return "Registered new patient";
-		
-
+		patientRepository.save(patient);
+		return "Registered new patient";
 	}
 
 	@Override
@@ -59,22 +57,17 @@ public class PatientServiceImple implements PatientService {
 		Page<Patient> patientPages = patientRepository.findByIsDeletedFalse(pageable);
 		Page<PatientResponseDTO> patientResPage = patientPages
 				.map(patient -> convertToDTO.convetToPatientResponseDTO(patient));
-
 		return patientResPage;
 	}
 
 	@Override
 	public Patient regsiterPtWithAp(Patient patient) {
-
 		for (Appointments a : patient.getAppointments()) {
 			a.setPatient(patient);
-
 			Doctor appointedDoctor = doctorRepository.findById(a.getDoctor().getDoctorId())
 					.orElseThrow(() -> new RuntimeException("doctor is not found with this id "));
 			a.setDoctor(appointedDoctor);
-
 		}
-
 		return patientRepository.save(patient);
 	}
 
@@ -85,7 +78,6 @@ public class PatientServiceImple implements PatientService {
 
 	@Override
 	public List<PatientMonthWise> patientMonthWises() {
-
 		return patientRepository.getPatientMonthWise();
 	}
 
@@ -93,46 +85,43 @@ public class PatientServiceImple implements PatientService {
 	public List<PatientResponseDTO> getRecentPatients(int pageSize) {
 		Pageable pageable = PageRequest.ofSize(pageSize);
 		List<PatientResponseDTO> patientResponseDTOsList = new ArrayList<>();
-		List<Patient> patientsList = patientRepository.findAll(pageable).getContent();
-
+		List<Patient> patientsList = patientRepository.findByIsDeletedFalse(pageable).getContent();
 		for (Patient patient : patientsList) {
 			PatientResponseDTO patientResponseDTO = convertToDTO.convetToPatientResponseDTO(patient);
 			patientResponseDTOsList.add(patientResponseDTO);
-
 		}
 		return patientResponseDTOsList;
 	}
-		@Override
-		public String softDeletePatient(int id) {
-			Patient patient= patientRepository.findById(id).orElseThrow(()-> new RuntimeException("Patient is not found with this id "+id));
-			
-			patient.setDeleted(true);
-			patientRepository.save(patient);			
-			return "Patient deleted";
+
+	@Override
+	public String softDeletePatient(int id) {
+		Patient patient = patientRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("Patient is not found with this id " + id));
+		patient.setDeleted(true);
+		patientRepository.save(patient);
+		return "Patient deleted";
+	}
+
+	@Override
+	public String updatePatient(int id, PatientRequestDTO patientRequestDTO) {
+		Patient patient = patientRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("patient is not found with this id " + id));
+		if (patientRequestDTO.getPatientName() != null || !patientRequestDTO.getPatientName().trim().isEmpty()) {
+			patient.setPatientName(patientRequestDTO.getPatientName());
 		}
-		
-		
-		@Override
-		public String updatePatient(int id, PatientRequestDTO patientRequestDTO) {
-			
-			Patient patient= patientRepository.findById(id).orElseThrow(()-> new RuntimeException("patient is not found with this id "+id));
-			if(patientRequestDTO.getPatientName() != null || !patientRequestDTO.getPatientName().trim().isEmpty()) {
-				patient.setPatientName(patientRequestDTO.getPatientName());
-			}
-			if(patientRequestDTO.getGender() != null || !patientRequestDTO.getGender().trim().isEmpty()) {
-				patient.setGender(patientRequestDTO.getGender());
-			}
-			if(patientRequestDTO.getAdderes() != null || !patientRequestDTO.getAdderes().trim().isEmpty()) {
-				patient.setAdderes(patientRequestDTO.getAdderes());
-			}
-			if(patientRequestDTO.getPhone() != null || !patientRequestDTO.getPhone().trim().isEmpty()) {
-				patient.setPhone(patientRequestDTO.getPhone());
-			}
-			if(patientRequestDTO.getAge() != null) {
-				patient.setAge(patientRequestDTO.getAge());
-			}
-			
-			patientRepository.save(patient);
-			return "Patient updated";
+		if (patientRequestDTO.getGender() != null || !patientRequestDTO.getGender().trim().isEmpty()) {
+			patient.setGender(patientRequestDTO.getGender());
 		}
+		if (patientRequestDTO.getAdderes() != null || !patientRequestDTO.getAdderes().trim().isEmpty()) {
+			patient.setAdderes(patientRequestDTO.getAdderes());
+		}
+		if (patientRequestDTO.getPhone() != null || !patientRequestDTO.getPhone().trim().isEmpty()) {
+			patient.setPhone(patientRequestDTO.getPhone());
+		}
+		if (patientRequestDTO.getAge() != null) {
+			patient.setAge(patientRequestDTO.getAge());
+		}
+		patientRepository.save(patient);
+		return "Patient updated";
+	}
 }

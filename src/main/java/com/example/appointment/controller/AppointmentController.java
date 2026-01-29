@@ -21,6 +21,8 @@ import com.example.appointment.dto.AppointmentUpadateRequestDTO;
 import com.example.appointment.service.AppointmentStatusCount;
 import com.example.appointment.serviceImple.AppointmentServiceImple;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/appointment")
 public class AppointmentController {
@@ -39,7 +41,7 @@ public class AppointmentController {
 	}
 
 	@PostMapping("/create-appointment")
-	public ResponseEntity<?> makeAppointment(@RequestBody AppointmentRequestDTO appointmentRequestDTO) {
+	public ResponseEntity<?> makeAppointment(@Valid @RequestBody AppointmentRequestDTO appointmentRequestDTO) {
 	
 		String message= appointmentServiceImple.createAppointment(appointmentRequestDTO);
 		return ResponseEntity.ok(Map.of("message",message));
@@ -61,6 +63,11 @@ public class AppointmentController {
 	 String message= appointmentServiceImple.updateAppointment(id, appointmentUpadateRequestDTO);
 	 return ResponseEntity.ok(Map.of("message",message));
 		
+	}
+	
+	@GetMapping("/appointment-by-doctor")
+	public ResponseEntity<?> getAppointmentByDoctor(){
+		return ResponseEntity.ok(this.appointmentServiceImple.appointmentByDoctor());
 	}
 
 }

@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import com.example.appointment.entity.Appointments;
 import com.example.appointment.service.AppointmentStatusCount;
 import com.example.appointment.Enum.AppointmentEnum.AppointmentStatus;
+import com.example.doctor.entity.Doctor;
+
 
 public interface AppointmentRepository extends JpaRepository<Appointments, Integer> {
 
@@ -17,5 +19,7 @@ public interface AppointmentRepository extends JpaRepository<Appointments, Integ
 	List<AppointmentStatusCount> getAppointmentStatusCount();
 
 	public Page<Appointments> findByStatus(AppointmentStatus status,Pageable pageable);
+	
+	public List<Appointments>  findByDoctor(Doctor doctor);
 
 }

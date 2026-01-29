@@ -1,16 +1,22 @@
 package com.example.user.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.example.doctor.entity.Doctor;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table
+@Table(name = "user")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,16 +31,16 @@ public class User {
 	private String role;
 	@Column
 	private boolean status;
-	@Column(nullable = true)
-	private int doctorId;
-
+	
+	
+	@OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+	List<Doctor> doctors = new ArrayList<>();
 	public User() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public User(int id, String username, String password, LocalDate createdAt, String role, boolean status,
-			int doctorId) {
+	public User(int id, String username, String password, LocalDate createdAt, String role, boolean status) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -42,7 +48,6 @@ public class User {
 		this.createdAt = createdAt;
 		this.role = role;
 		this.status = status;
-		this.doctorId = doctorId;
 	}
 
 	public int getId() {
@@ -83,14 +88,6 @@ public class User {
 
 	public void setStatus(boolean status) {
 		this.status = status;
-	}
-
-	public int getDoctorId() {
-		return doctorId;
-	}
-
-	public void setDoctorId(int doctorId) {
-		this.doctorId = doctorId;
 	}
 
 	public String getPassword() {

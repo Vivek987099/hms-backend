@@ -12,7 +12,6 @@ public class DoctorResponseDTO {
 	private float fee;
 	private String profilePhotoUrl;
 	private LocalDate created_at;
-	private String email;
 	private DepartmentResponseDTO departmentResponseDTO;
 	
 	public DoctorResponseDTO() {
@@ -23,7 +22,7 @@ public class DoctorResponseDTO {
 	
 	
 	public DoctorResponseDTO(int doctorId, String doctorName, String specialization, float fee, String profilePhotoUrl,
-			LocalDate created_at, String email, DepartmentResponseDTO departmentResponseDTO) {
+			LocalDate created_at,  DepartmentResponseDTO departmentResponseDTO) {
 		super();
 		this.doctorId = doctorId;
 		this.doctorName = doctorName;
@@ -31,7 +30,6 @@ public class DoctorResponseDTO {
 		this.fee = fee;
 		this.profilePhotoUrl = profilePhotoUrl;
 		this.created_at = created_at;
-		this.email = email;
 		this.departmentResponseDTO = departmentResponseDTO;
 	}
 
@@ -72,18 +70,6 @@ public class DoctorResponseDTO {
 	}
 	public void setCreated_at(LocalDate created_at) {
 		this.created_at = created_at;
-	}
-
-
-
-	public String getEmail() {
-		return email;
-	}
-
-
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 
