@@ -1,7 +1,6 @@
 package com.example.exception;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,9 +45,19 @@ public class GlobalException {
 			String errorMessage = error.getDefaultMessage();
 			errorMap.put(fieldName, errorMessage);
 		});
-
 		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
-
 	}
+
+	@ExceptionHandler(DoctorAlreadyException.class)
+	public ResponseEntity<?> doctorAlreadyExistException(DoctorAlreadyException ex) {
+				
+		Map<String, String> errorMap= new HashMap<>();
+		  String errorMassage= ex.getMessage();
+		  errorMap.put("message", errorMassage);
+	
+		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.CONFLICT);
+	}
+	
+	
 
 }

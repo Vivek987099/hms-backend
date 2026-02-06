@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import com.example.user.DTO.CustomUserDetails;
-import com.example.user.DTO.CustomUserDetailsService;
 import com.example.user.entity.User;
 import com.example.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,7 @@ import com.example.doctor.DTO.DoctorResponseDTO;
 import com.example.doctor.entity.Doctor;
 import com.example.doctor.repository.DoctorRepository;
 import com.example.doctor.service.DoctorService;
+import com.example.exception.DoctorAlreadyException;
 import com.example.helperClasses.FileUpload;
 import com.example.mail.service.MailService;
 
@@ -61,13 +62,20 @@ public class DoctorServiceImple implements DoctorService {
 
 	@Override
 	public String saveDoctor(int id, DoctorRequestDTO doctorRequestDTO, MultipartFile file) throws IOException {
-		
 		Doctor doctor = new Doctor();
 //
 		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("user not found"));
-		Department department = departmentRepository.findById(doctorRequestDTO.getDepartmentId()).orElseThrow(
-				() -> new RuntimeException("Department not found with this id" + doctorRequestDTO.getDepartmentId()+" department"));
-
+		Department department = departmentRepository.findById(doctorRequestDTO.getDepartmentId())
+				.orElseThrow(() -> new RuntimeException(
+						"Department not found with this id" + doctorRequestDTO.getDepartmentId() + " department"));
+		
+	   Optional<Doctor> ExistingDoctor=	this.doctorRepository.findByUser(user);
+	   if(ExistingDoctor.isPresent()) {
+		   throw new DoctorAlreadyException("Doctor already exist");
+		   
+	   }
+	  
+			
 		Path url = fileUpload.uploadFile(file);
 		doctor.setDoctorName(doctorRequestDTO.getDoctorName());
 		doctor.setSpecialization(doctorRequestDTO.getSpecialization());
@@ -76,14 +84,12 @@ public class DoctorServiceImple implements DoctorService {
 		doctor.setCreatedAt(LocalDate.now());
 		doctor.setDepartment(department);
 		doctor.setUser(user);
-		 boolean status=  mailService.sendMail("Today's information", user.getUsername(), "Dear "
-				+ doctorRequestDTO.getDoctorName() + " today you will work in " + department.getDepartmentName());
-		
-		 if(status) {
-			 
-			 doctorRepository.save(doctor);
-			 return "Doctor created";
-		 }else {
+		boolean status = mailService.sendMail("Today's information", user.getUsername(), "Dear "
+				+ doctorRequestDTO.getDoctorName() + "from today you will work in " + department.getDepartmentName() +" department");
+		if (status) {
+			doctorRepository.save(doctor);
+			return "Doctor created";
+		} else {
 			return "Try again";
 		}
 	}
@@ -142,13 +148,13 @@ public class DoctorServiceImple implements DoctorService {
 		List<Doctor> doctorList = doctorRepository.findByDepartment(department);
 		return doctorList.stream().map(doctor -> convertToDTO.convertToDoctorResponseDTO(doctor)).toList();
 	}
-	
+
 	@Override
 	public DoctorResponseDTO doctorProfile() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	CustomUserDetails customUserDetails =(CustomUserDetails)	 authentication.getPrincipal();
-		 User user =	customUserDetails.getUser();
-		 Doctor doctor= doctorRepository.findByUser(user).orElseThrow(()-> new RuntimeException("not found"));
+		CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+		User user = customUserDetails.getUser();
+		Doctor doctor = doctorRepository.findByUser(user).orElseThrow(() -> new RuntimeException("not found"));
 		return convertToDTO.convertToDoctorResponseDTO(doctor);
 	}
 }
