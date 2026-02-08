@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,8 @@ public class DoctorController {
 
 	@Autowired
 	private DoctorService doctorService;
-
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@PostMapping("/create-doctor/{userId}")
 	public ResponseEntity<?> saveDoctor(@PathVariable(name = "userId") int userId,@Valid @RequestPart("doctor") DoctorRequestDTO doctorRequestDTO, @RequestPart("file") MultipartFile file)
 			throws IOException {
@@ -51,7 +53,9 @@ public class DoctorController {
 	public ResponseEntity<?> getTotalDoctors() {
 		return ResponseEntity.ok(doctorService.totalDoctors());
 	}
-
+	
+	
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@DeleteMapping("/delete-doctor/{id}")
 	public ResponseEntity<?> deleteDoctor(@PathVariable int id) {
 		String message = doctorService.deleteDoctorWithId(id);

@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -23,12 +24,17 @@ import com.example.auth.JwtFilter;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 	@Autowired
+	private CustomAccessDeniedHandler customAccessDeniedHandler;
+	@Autowired
+	private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+	
+	@Autowired
 	private JwtFilter jwtFilter;
 
 //	SECURITY CONFIGURATION
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).cors(org.springframework.security.config.Customizer.withDefaults())
+		http.csrf(csrf -> csrf.disable()).exceptionHandling(ex-> ex.accessDeniedHandler(customAccessDeniedHandler).authenticationEntryPoint(this.customAuthenticationEntryPoint)).cors(org.springframework.security.config.Customizer.withDefaults())
 				.authorizeHttpRequests(auth -> auth.requestMatchers("api/auth/**", "/doctor/**", "/file/**").permitAll()
 				 		.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
