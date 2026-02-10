@@ -57,6 +57,26 @@ public class GlobalException {
 	
 		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.CONFLICT);
 	}
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<?> illegalArgumentException(IllegalArgumentException ex) {
+				
+		Map<String, String> errorMap= new HashMap<>();
+		  String errorMassage= ex.getMessage();
+		  errorMap.put("message", errorMassage);
+		
+	
+		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+	}
+	@ExceptionHandler(NullFileException.class)
+	public ResponseEntity<?> handleNullFileException(NullFileException ex) {
+				
+		Map<String, String> errorMap= new HashMap<>();
+		  String errorMassage= ex.getMessage();
+		  errorMap.put("message", errorMassage);
+		
+	
+		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+	}
 	
 	
 

@@ -1,7 +1,9 @@
 package com.example.doctor.serviceImple;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +42,7 @@ public class DoctorServiceImple implements DoctorService {
 	private DoctorRepository doctorRepository;
 	@Autowired
 	private FileUpload fileUpload;
+
 	@Autowired
 	private ConvertToDTO convertToDTO;
 	@Autowired
@@ -68,14 +71,13 @@ public class DoctorServiceImple implements DoctorService {
 		Department department = departmentRepository.findById(doctorRequestDTO.getDepartmentId())
 				.orElseThrow(() -> new RuntimeException(
 						"Department not found with this id" + doctorRequestDTO.getDepartmentId() + " department"));
-		
-	   Optional<Doctor> ExistingDoctor=	this.doctorRepository.findByUser(user);
-	   if(ExistingDoctor.isPresent()) {
-		   throw new DoctorAlreadyException("Doctor already exist");
-		   
-	   }
-	  
-			
+
+		Optional<Doctor> ExistingDoctor = this.doctorRepository.findByUser(user);
+		if (ExistingDoctor.isPresent()) {
+			throw new DoctorAlreadyException("Doctor already exist");
+
+		}
+
 		Path url = fileUpload.uploadFile(file);
 		doctor.setDoctorName(doctorRequestDTO.getDoctorName());
 		doctor.setSpecialization(doctorRequestDTO.getSpecialization());
@@ -84,8 +86,9 @@ public class DoctorServiceImple implements DoctorService {
 		doctor.setCreatedAt(LocalDate.now());
 		doctor.setDepartment(department);
 		doctor.setUser(user);
-		boolean status = mailService.sendMail("Today's information", user.getUsername(), "Dear "
-				+ doctorRequestDTO.getDoctorName() + "from today you will work in " + department.getDepartmentName() +" department");
+		boolean status = mailService.sendMail("Today's information", user.getUsername(),
+				"Dear " + doctorRequestDTO.getDoctorName() + "from today you will work in "
+						+ department.getDepartmentName() + " department");
 		if (status) {
 			doctorRepository.save(doctor);
 			return "Doctor created";
@@ -100,9 +103,18 @@ public class DoctorServiceImple implements DoctorService {
 	}
 
 	@Override
-	public String deleteDoctorWithId(int id) {
+	public String deleteDoctorWithId(int id) throws IOException {
 		Doctor doctor = doctorRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Doctor not found with this id" + id));
+		User user = doctor.getUser();
+		String profile = doctor.getProfilePhotoUrl();
+		Path filePath = Paths.get(profile);
+
+		if (Files.exists(filePath)) {
+			Files.delete(filePath);
+			System.out.println("file delete successfuly");
+		}
+		this.userRepository.delete(user);
 		doctorRepository.delete(doctor);
 		return "Doctore Deleted";
 	}

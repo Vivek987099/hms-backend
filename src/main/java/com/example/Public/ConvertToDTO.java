@@ -6,6 +6,7 @@ import com.example.appointment.dto.AppointmentResponseDTO;
 import com.example.appointment.entity.Appointments;
 import com.example.department.DTO.DepartmentResponseDTO;
 import com.example.department.entity.Department;
+import com.example.doctor.DTO.DoctorRequestDTO;
 import com.example.doctor.DTO.DoctorResponseDTO;
 import com.example.doctor.DTO.DoctorScheduleResponseDTO;
 import com.example.doctor.entity.Doctor;
@@ -51,6 +52,13 @@ public class ConvertToDTO {
 	public DepartmentResponseDTO convertTDepartmentResponseDTO(Department department) {
 		return new DepartmentResponseDTO(department.getId(), department.getDepartmentName(),
 				department.getDepartmentDescription());
+	}
+
+	public boolean isDoctorProvided(DoctorRequestDTO doctorRequestDTO) {
+		return doctorRequestDTO != null && !doctorRequestDTO.getDoctorName().isBlank()
+				&& doctorRequestDTO.getDoctorName() != null && !doctorRequestDTO.getSpecialization().isBlank()
+				&& doctorRequestDTO.getSpecialization() != null && doctorRequestDTO.getFee() != null
+				&& doctorRequestDTO.getDepartmentId() != null;
 	}
 
 }

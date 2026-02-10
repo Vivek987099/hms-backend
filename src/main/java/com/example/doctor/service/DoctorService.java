@@ -14,7 +14,7 @@ public interface DoctorService {
 	public String saveDoctor(int id,DoctorRequestDTO doctorRequestDTO,MultipartFile file) throws IOException;
 	public Page<DoctorResponseDTO> getAllDoctors(int pageSize,int pageNo);
 	public long totalDoctors();
-	public String deleteDoctorWithId(int id);
+	public String deleteDoctorWithId(int id) throws IOException;
 	
 	public List<DoctorResponseDTO> allDoctorsWithoutPageable();
 	

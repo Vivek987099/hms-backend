@@ -57,7 +57,7 @@ public class DoctorController {
 	
 	@PreAuthorize("hasAuthority('ADMIN')")
 	@DeleteMapping("/delete-doctor/{id}")
-	public ResponseEntity<?> deleteDoctor(@PathVariable int id) {
+	public ResponseEntity<?> deleteDoctor(@PathVariable int id) throws IOException {
 		String message = doctorService.deleteDoctorWithId(id);
 		return ResponseEntity.ok(Map.of("message", message));
 
