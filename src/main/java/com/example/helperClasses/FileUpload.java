@@ -1,5 +1,6 @@
 package com.example.helperClasses;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -49,12 +50,12 @@ public class FileUpload {
 
 	}
 
-	public Resource showFile(String fileName) throws MalformedURLException {
+	public Resource showFile(String fileName) throws MalformedURLException, FileNotFoundException {
 
 		Path path = Paths.get("uploads").resolve(fileName).normalize();
 		Resource resource = new UrlResource(path.toUri());
 		if (!resource.exists()) {
-			System.out.println("file does not exist");
+			throw new FileNotFoundException("File Not found");
 		}
 
 		return resource;

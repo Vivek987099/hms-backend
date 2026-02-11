@@ -1,5 +1,6 @@
 package com.example.exception;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,6 +77,10 @@ public class GlobalException {
 		
 	
 		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
+	}
+	@ExceptionHandler(FileNotFoundException.class)
+	public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException ex) {
+		return ResponseEntity.ok("");
 	}
 	
 	

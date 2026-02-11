@@ -112,7 +112,6 @@ public class DoctorServiceImple implements DoctorService {
 
 		if (Files.exists(filePath)) {
 			Files.delete(filePath);
-			System.out.println("file delete successfuly");
 		}
 		this.userRepository.delete(user);
 		doctorRepository.delete(doctor);
