@@ -83,6 +83,25 @@ public class GlobalException {
 		return ResponseEntity.ok("");
 	}
 	
+	@ExceptionHandler(InvalidOTPException.class)
+	public ResponseEntity<?> handleInvalidOTPException(InvalidOTPException ex) {
+		
+		Map<String, String> allErrors= new HashMap<>();
+		
+		String message=  ex.getMessage();
+		allErrors.put("message", message);
+		return new ResponseEntity<Map<String, String>>(allErrors,HttpStatus.BAD_REQUEST);
+	}
+	@ExceptionHandler(UserAlreadyExistException.class)
+	public ResponseEntity<?> handleUserAlreadyExistException(UserAlreadyExistException ex) {
+		
+		Map<String, String> allErrors= new HashMap<>();
+		
+		String message=  ex.getMessage();
+		allErrors.put("message", message);
+		return new ResponseEntity<Map<String, String>>(allErrors,HttpStatus.BAD_REQUEST);
+	}
+	
 	
 
 }

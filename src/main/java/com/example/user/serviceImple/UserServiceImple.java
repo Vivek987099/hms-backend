@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,9 @@ import com.example.department.repository.DepartmentRepository;
 import com.example.doctor.DTO.DoctorRequestDTO;
 import com.example.doctor.entity.Doctor;
 import com.example.doctor.repository.DoctorRepository;
+import com.example.exception.InvalidOTPException;
 import com.example.exception.NullFileException;
+import com.example.exception.UserAlreadyExistException;
 import com.example.helperClasses.FileUpload;
 import com.example.mail.service.MailService;
 import com.example.tempUser.entity.TempUser;
@@ -63,18 +66,23 @@ public class UserServiceImple implements UserService {
 	}
 
 	@Override
-	public String createNewUser(UserRequestDTO userRequestDTO, DoctorRequestDTO doctorRequestDTO, MultipartFile file) throws IOException {
+	public String createNewUser(UserRequestDTO userRequestDTO, DoctorRequestDTO doctorRequestDTO, MultipartFile file)
+			throws IOException {
 		String generatedOtp = String.valueOf(100000 + new Random().nextInt(900000));
-		
-		
-		
+
+		Optional<User> existingUser = this.userRepository.findByUsername(userRequestDTO.getUsername());
+		if (existingUser.isPresent()) {
+
+			throw new UserAlreadyExistException("User already exist with this email");
+		}
+
 		TempUser tempUser = new TempUser();
 		tempUser.setUsername(userRequestDTO.getUsername());
 		tempUser.setPassword(userRequestDTO.getPassword());
 		tempUser.setRole(userRequestDTO.getRole());
 		tempUser.setExpiredAt(LocalDateTime.now().plusMinutes(10));
 		tempUser.setOtp(generatedOtp);
-		if(file == null) {
+		if (file == null && userRequestDTO.getRole().equals("DOCTOR")) {
 			throw new NullFileException("file can't be null or empty");
 		}
 
@@ -87,16 +95,12 @@ public class UserServiceImple implements UserService {
 			tempUser.setProfilePhotoUrl(profileUrl.toString());
 		}
 
-		
-		
-		if(userRequestDTO.getUsername() ==null || userRequestDTO.getUsername().isBlank()) {
+		if (userRequestDTO.getUsername() == null || userRequestDTO.getUsername().isBlank())
 			throw new IllegalArgumentException("Email can not be null or empty");
-		
-		}
-		
-		 boolean status =	mailService.sendMail("verification", userRequestDTO.getUsername(),
+
+		boolean status = mailService.sendMail("verification", userRequestDTO.getUsername(),
 				"Your One Time Password (OTP)  is " + generatedOtp + " valid for only 10 minutes.");
-		
+
 		if (status) {
 			tempUserRepository.save(tempUser);
 			return "We have sent an OTP to your email";
@@ -115,11 +119,12 @@ public class UserServiceImple implements UserService {
 	@Override
 	public int otpVerification(OTPVerificationRequest otpVerificationRequest) {
 		String username = otpVerificationRequest.getUsername();
+
 		String otp = otpVerificationRequest.getOtp();
 		TempUser tempUser = tempUserRepository.findByUsername(username)
 				.orElseThrow(() -> new RuntimeException("not found "));
 		if (!tempUser.getOtp().equals(otp)) {
-			throw new RuntimeException("OTP Invalid");
+			throw new InvalidOTPException("OTP Invalid");
 		}
 		if (tempUser.getExpiredAt().isBefore(LocalDateTime.now())) {
 			throw new RuntimeException("OTP expired");
@@ -131,7 +136,6 @@ public class UserServiceImple implements UserService {
 		user.setCreatedAt(LocalDate.now());
 		user.setRole(tempUser.getRole());
 		user.setStatus(true);
-		
 
 		User savedUser = userRepository.save(user);
 		if (tempUser.getRole().equals("DOCTOR")) {
@@ -177,5 +181,4 @@ public class UserServiceImple implements UserService {
 		return dtoList;
 	}
 
-	
 }
