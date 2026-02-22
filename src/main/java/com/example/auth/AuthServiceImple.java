@@ -36,7 +36,7 @@ public class AuthServiceImple implements AuthService{
 		  CustomUserDetails  customUserDetails=(CustomUserDetails)  authentication.getPrincipal();
 		  		 User user= customUserDetails.getUser();
 		  		 String token=  jwtUtils.generateToken(user);
-		  		 	ResponseCookie cookie=ResponseCookie.from("token", token).httpOnly(true).secure(false).path("/").sameSite("Lax").maxAge(3600).build();
+		  		 	ResponseCookie cookie=ResponseCookie.from("token", token).httpOnly(true).secure(true).path("/").sameSite("None").maxAge(3600).build();
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(Map.of("message","Login successful")) ;
 	}
 	
