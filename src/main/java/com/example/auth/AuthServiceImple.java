@@ -5,8 +5,6 @@ package com.example.auth;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,8 +34,7 @@ public class AuthServiceImple implements AuthService{
 		  CustomUserDetails  customUserDetails=(CustomUserDetails)  authentication.getPrincipal();
 		  		 User user= customUserDetails.getUser();
 		  		 String token=  jwtUtils.generateToken(user);
-		  		 	ResponseCookie cookie=ResponseCookie.from("token", token).httpOnly(true).secure(true).path("/").sameSite("None").maxAge(3600).build();
-		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(Map.of("message","Login successful")) ;
+		return ResponseEntity.ok(Map.of("token",token));
 	}
 	
 	@Override

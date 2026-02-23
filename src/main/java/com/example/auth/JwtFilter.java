@@ -13,58 +13,52 @@ import com.example.user.DTO.CustomUserDetailsService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 	@Autowired
 	private JwtUtils jwtUtils;
 
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		String header = request.getHeader("Authorization");
-		String jwt = null;
+		String header = null;
+		String token = null;
 		String username = null;
 		
-		 jwt = extractTokenFromCookie(request);
-		if (jwt==null && header != null && header.startsWith("Bearer ")) {
-			jwt = header.substring(7);
-		}
-		if (jwt != null) {
-	        try {
-	            username = jwtUtils.extractUsername(jwt);
-	        } catch (Exception e) {
-	            // Token expire ya invalid ho sakta hai, ignore karein taaki 403 aaye
-	            System.out.println("Token validation failed: " + e.getMessage());
-	        }
-	    }
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-			if (jwtUtils.validateToken(jwt, userDetails)) {
-				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
-				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+		try {
+			header = request.getHeader("Authorization");
+			if(header != null && header.startsWith("Bearer ")) {
+				token = header.substring(7);
+				System.out.println("token : "+token);
+				
 			}
+			if(token  != null) {
+				username= this.jwtUtils.extractUsername(token);
+			}
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(username);
+				if (jwtUtils.validateToken(token, userDetails)) {
+					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+							userDetails, null, userDetails.getAuthorities());
+					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+				}
+			}
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
 		}
 		filterChain.doFilter(request, response);
 	}
 
-	public String extractTokenFromCookie(HttpServletRequest httpServletRequest) {
-		if (httpServletRequest.getCookies() == null)
-			return null;
-		for (Cookie cookie : httpServletRequest.getCookies()) {
-			if (cookie.getName().equals("token")) {
-				return cookie.getValue();
-			}
-
-		}
-		return null;
-	}
+	
 
 }
