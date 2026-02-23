@@ -38,15 +38,15 @@ public class UserController {
 			@Valid @RequestPart(value = "doctor", required = false) DoctorRequestDTO doctorRequestDTO,
 			@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 		String message = userServiceImple.createNewUser(userRequestDTO, doctorRequestDTO, file);
-		return ResponseEntity.ok(Map.of("User",message));
+		return ResponseEntity.ok(Map.of("message",message));
 	}
 
-	@PostMapping("/verify-otp")
-	public ResponseEntity<?> verifyOtp(@RequestBody OTPVerificationRequest otpVerificationRequest) {
-
-		int useId = userServiceImple.otpVerification(otpVerificationRequest);
-		return ResponseEntity.ok(Map.of("userId", useId));
-	}
+//	@PostMapping("/verify-otp")
+//	public ResponseEntity<?> verifyOtp(@RequestBody OTPVerificationRequest otpVerificationRequest) {
+//
+//		int useId = userServiceImple.otpVerification(otpVerificationRequest);
+//		return ResponseEntity.ok(Map.of("userId", useId));
+//	}
 
 	@GetMapping("/total-users")
 	public ResponseEntity<?> getTotalUser() {

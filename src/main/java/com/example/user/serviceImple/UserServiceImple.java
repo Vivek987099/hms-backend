@@ -68,45 +68,69 @@ public class UserServiceImple implements UserService {
 	@Override
 	public String createNewUser(UserRequestDTO userRequestDTO, DoctorRequestDTO doctorRequestDTO, MultipartFile file)
 			throws IOException {
-		String generatedOtp = String.valueOf(100000 + new Random().nextInt(900000));
+//		String generatedOtp = String.valueOf(100000 + new Random().nextInt(900000));
 
 		Optional<User> existingUser = this.userRepository.findByUsername(userRequestDTO.getUsername());
 		if (existingUser.isPresent()) {
 
 			throw new UserAlreadyExistException("User already exist with this email");
 		}
+		
+		User user = new User();
+		user.setUsername(userRequestDTO.getUsername());
+		user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+		user.setRole(userRequestDTO.getRole());
+		user.setStatus(true);
+		user.setCreatedAt(LocalDate.now());
+		User savedUser = this.userRepository.save(user);
 
-		TempUser tempUser = new TempUser();
-		tempUser.setUsername(userRequestDTO.getUsername());
-		tempUser.setPassword(userRequestDTO.getPassword());
-		tempUser.setRole(userRequestDTO.getRole());
-		tempUser.setExpiredAt(LocalDateTime.now().plusMinutes(10));
-		tempUser.setOtp(generatedOtp);
-		if (file == null && userRequestDTO.getRole().equals("DOCTOR")) {
-			throw new NullFileException("file can't be null or empty");
-		}
+//		TempUser tempUser = new TempUser();
+//		tempUser.setUsername(userRequestDTO.getUsername());
+//		tempUser.setPassword(userRequestDTO.getPassword());
+//		tempUser.setRole(userRequestDTO.getRole());
+//		tempUser.setExpiredAt(LocalDateTime.now().plusMinutes(10));
+//		tempUser.setOtp(generatedOtp);
+//		if (file == null && userRequestDTO.getRole().equals("DOCTOR")) {
+//			throw new NullFileException("file can't be null or empty");
+//		}
 
 		if (convertToDTO.isDoctorProvided(doctorRequestDTO) && file != null) {
 			Path profileUrl = this.fileUpload.uploadFile(file);
-			tempUser.setDoctorName(doctorRequestDTO.getDoctorName());
-			tempUser.setFee(doctorRequestDTO.getFee());
-			tempUser.setSpecialization(doctorRequestDTO.getSpecialization());
-			tempUser.setDepartId(doctorRequestDTO.getDepartmentId());
-			tempUser.setProfilePhotoUrl(profileUrl.toString());
+//			tempUser.setDoctorName(doctorRequestDTO.getDoctorName());
+//			tempUser.setFee(doctorRequestDTO.getFee());
+//			tempUser.setSpecialization(doctorRequestDTO.getSpecialization());
+//			tempUser.setDepartId(doctorRequestDTO.getDepartmentId());
+//			tempUser.setProfilePhotoUrl(profileUrl.toString());
+			 Department department= this.departmentRepository.findById(doctorRequestDTO.getDepartmentId()).orElseThrow(()-> new RuntimeException("Deparment not found"));
+			
+			Doctor doctor = new Doctor();
+			doctor.setDoctorName(doctorRequestDTO.getDoctorName());
+			doctor.setCreatedAt(LocalDate.now());
+			doctor.setFee(doctorRequestDTO.getFee());
+			doctor.setProfilePhotoUrl(profileUrl.toString());
+			doctor.setSpecialization(doctorRequestDTO.getSpecialization());
+			doctor.setUser(savedUser);
+			doctor.setDepartment(department);
+			this.doctorRepository.save(doctor);
+			
+		
+			
+				
 		}
+		return "User created successfully";
 
-		if (userRequestDTO.getUsername() == null || userRequestDTO.getUsername().isBlank())
-			throw new IllegalArgumentException("Email can not be null or empty");
-
-		boolean status = mailService.sendMail("verification", userRequestDTO.getUsername(),
-				"Your One Time Password (OTP)  is " + generatedOtp + " valid for only 10 minutes.");
-
-		if (status) {
-			tempUserRepository.save(tempUser);
-			return "We have sent an OTP to your email";
-		} else {
-			return "Try again to sent OTP";
-		}
+//		if (userRequestDTO.getUsername() == null || userRequestDTO.getUsername().isBlank())
+//			throw new IllegalArgumentException("Email can not be null or empty");
+//
+//		boolean status = mailService.sendMail("verification", userRequestDTO.getUsername(),
+//				"Your One Time Password (OTP)  is " + generatedOtp + " valid for only 10 minutes.");
+//
+//		if (status) {
+//			tempUserRepository.save(tempUser);
+//			return "We have sent an OTP to your email";
+//		} else {
+//			return "Try again to sent OTP";
+//		}
 	}
 
 	@Override
@@ -115,49 +139,49 @@ public class UserServiceImple implements UserService {
 
 	}
 
-	@Transactional
-	@Override
-	public int otpVerification(OTPVerificationRequest otpVerificationRequest) {
-		String username = otpVerificationRequest.getUsername();
-
-		String otp = otpVerificationRequest.getOtp();
-		TempUser tempUser = tempUserRepository.findByUsername(username)
-				.orElseThrow(() -> new RuntimeException("not found "));
-		if (!tempUser.getOtp().equals(otp)) {
-			throw new InvalidOTPException("OTP Invalid");
-		}
-		if (tempUser.getExpiredAt().isBefore(LocalDateTime.now())) {
-			throw new RuntimeException("OTP expired");
-		}
-
-		User user = new User();
-		user.setUsername(tempUser.getUsername());
-		user.setPassword(passwordEncoder.encode(tempUser.getPassword()));
-		user.setCreatedAt(LocalDate.now());
-		user.setRole(tempUser.getRole());
-		user.setStatus(true);
-
-		User savedUser = userRepository.save(user);
-		if (tempUser.getRole().equals("DOCTOR")) {
-			Department department = this.departmentRepository.findById(tempUser.getDepartId())
-					.orElseThrow(() -> new RuntimeException("Department not found"));
-			Doctor doctor = new Doctor();
-			doctor.setDoctorName(tempUser.getDoctorName());
-			doctor.setSpecialization(tempUser.getSpecialization());
-			doctor.setFee(tempUser.getFee());
-			doctor.setDepartment(department);
-			doctor.setCreatedAt(LocalDate.now());
-			doctor.setProfilePhotoUrl(tempUser.getProfilePhotoUrl());
-			doctor.setUser(savedUser);
-
-			this.doctorRepository.save(doctor);
-		}
-
-		mailService.sendMail("Information", otpVerificationRequest.getUsername(),
-				"Hey! you are now admin of Hospital Management System.");
-		tempUserRepository.deleteByUsername(otpVerificationRequest.getUsername());
-		return savedUser.getId();
-	}
+//	@Transactional
+//	@Override
+//	public int otpVerification(OTPVerificationRequest otpVerificationRequest) {
+//		String username = otpVerificationRequest.getUsername();
+//
+//		String otp = otpVerificationRequest.getOtp();
+//		TempUser tempUser = tempUserRepository.findByUsername(username)
+//				.orElseThrow(() -> new RuntimeException("not found "));
+//		if (!tempUser.getOtp().equals(otp)) {
+//			throw new InvalidOTPException("OTP Invalid");
+//		}
+//		if (tempUser.getExpiredAt().isBefore(LocalDateTime.now())) {
+//			throw new RuntimeException("OTP expired");
+//		}
+//
+//		User user = new User();
+//		user.setUsername(tempUser.getUsername());
+//		user.setPassword(passwordEncoder.encode(tempUser.getPassword()));
+//		user.setCreatedAt(LocalDate.now());
+//		user.setRole(tempUser.getRole());
+//		user.setStatus(true);
+//
+//		User savedUser = userRepository.save(user);
+//		if (tempUser.getRole().equals("DOCTOR")) {
+//			Department department = this.departmentRepository.findById(tempUser.getDepartId())
+//					.orElseThrow(() -> new RuntimeException("Department not found"));
+//			Doctor doctor = new Doctor();
+//			doctor.setDoctorName(tempUser.getDoctorName());
+//			doctor.setSpecialization(tempUser.getSpecialization());
+//			doctor.setFee(tempUser.getFee());
+//			doctor.setDepartment(department);
+//			doctor.setCreatedAt(LocalDate.now());
+//			doctor.setProfilePhotoUrl(tempUser.getProfilePhotoUrl());
+//			doctor.setUser(savedUser);
+//
+//			this.doctorRepository.save(doctor);
+//		}
+//
+//		mailService.sendMail("Information", otpVerificationRequest.getUsername(),
+//				"Hey! you are now admin of Hospital Management System.");
+//		tempUserRepository.deleteByUsername(otpVerificationRequest.getUsername());
+//		return savedUser.getId();
+//	}
 
 	@Override
 	public Page<UserResponseDTO> getAllUser(int pageSize, int pageNo) {
