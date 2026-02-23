@@ -47,11 +47,11 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:5173","https://hms-389078jy9-vivek-aryas-projects-158ec312.vercel.app"));
+		configuration.setAllowedOrigins(List.of("http://localhost:5173","https://*.vercel.app"));
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin",
 				"Access-Control-Request-Method", "Access-Control-Request-Headers", "path"));
-		configuration.setAllowCredentials(true); // if using cookies/token
+		 // if using cookies/token
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
 		source.registerCorsConfiguration("/**", configuration);
